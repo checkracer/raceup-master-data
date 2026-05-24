@@ -1,0 +1,4 @@
+# Master Data — clean URLs
+/  /index.html  200
+/events  /data/events.js  302
+/categories  /data/categories.js  302
