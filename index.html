@@ -37,32 +37,59 @@ th{background:#FAFBFC;color:#666;font-weight:600;text-transform:uppercase;font-s
     <h2>📦 Static Files (Cloudflare Pages CDN)</h2>
     <table>
       <tr><th>Path</th><th>คำอธิบาย</th></tr>
-      <tr><td><a href="data/events.js">/data/events.js</a></td><td>22 events + 4 helper functions (RACEUP_EVENTS)</td></tr>
+      <tr><td><a href="data/events.js">/data/events.js</a></td><td>22 events + 4 helper functions (<code>RACEUP_EVENTS</code>)</td></tr>
       <tr><td><a href="data/categories.js">/data/categories.js</a></td><td>Race Pack categories + status flow</td></tr>
+      <tr><td><a href="data/staff.js">/data/staff.js</a></td><td>22 staff (<code>RACEUP_STAFF</code>) + nickname/email/phone helpers</td></tr>
+      <tr><td><a href="data/project-assign.js">/data/project-assign.js</a></td><td>Per-event team assignment (<code>RACEUP_PROJECT_ASSIGN</code>)</td></tr>
+      <tr><td><a href="data/sponsors.js">/data/sponsors.js</a></td><td>Sponsors per event + tier + brand colors (<code>RACEUP_SPONSORS</code>)</td></tr>
+      <tr><td><a href="data/suppliers.js">/data/suppliers.js</a></td><td>Suppliers by category (<code>RACEUP_SUPPLIERS</code>)</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h2>🔗 Apps Script API (ดึงผ่าน Web App URL)</h2>
     <table>
-      <tr><th>Action</th><th>Endpoint</th></tr>
-      <tr><td>events</td><td class="endpoint">?action=events</td></tr>
-      <tr><td>categories</td><td class="endpoint">?action=categories</td></tr>
-      <tr><td>event เดียว</td><td class="endpoint">?action=event&amp;code=KSMH26</td></tr>
-      <tr><td>events.js direct</td><td class="endpoint">?action=js</td></tr>
-      <tr><td>ping</td><td class="endpoint">?action=ping</td></tr>
+      <tr><th>Action</th><th>Endpoint</th><th>Status</th></tr>
+      <tr><td>events</td><td class="endpoint">?action=events</td><td>✅</td></tr>
+      <tr><td>categories</td><td class="endpoint">?action=categories</td><td>✅</td></tr>
+      <tr><td>event เดียว</td><td class="endpoint">?action=event&amp;code=KSMH26</td><td>✅</td></tr>
+      <tr><td>staff</td><td class="endpoint">?action=staff</td><td>🛠 Need deploy</td></tr>
+      <tr><td>projects</td><td class="endpoint">?action=projects</td><td>🛠 Need deploy</td></tr>
+      <tr><td>project เดียว</td><td class="endpoint">?action=project&amp;code=KSMH26</td><td>🛠 Need deploy</td></tr>
+      <tr><td>sponsors</td><td class="endpoint">?action=sponsors[&amp;event=XX]</td><td>🛠 Need deploy</td></tr>
+      <tr><td>suppliers</td><td class="endpoint">?action=suppliers[&amp;category=medal]</td><td>🛠 Need deploy</td></tr>
+      <tr><td>events.js direct</td><td class="endpoint">?action=js</td><td>✅</td></tr>
+      <tr><td>ping</td><td class="endpoint">?action=ping</td><td>✅</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h2>📖 ใช้งานใน subdomain อื่น</h2>
     <p style="font-size:13px;color:#666">วาง script tag ลงในหน้า HTML:</p>
-    <pre style="background:#1A1A1A;color:#E2E8F0;padding:14px;border-radius:8px;overflow-x:auto;font-size:12px;margin-top:10px"><code style="background:none;color:inherit">&lt;script src="https://master.raceup.co.th/data/events.js"&gt;&lt;/script&gt;
+    <pre style="background:#1A1A1A;color:#E2E8F0;padding:14px;border-radius:8px;overflow-x:auto;font-size:12px;margin-top:10px"><code style="background:none;color:inherit">&lt;!-- โหลดทั้ง 6 ไฟล์ master --&gt;
+&lt;script src="https://master.raceup.co.th/data/events.js"&gt;&lt;/script&gt;
 &lt;script src="https://master.raceup.co.th/data/categories.js"&gt;&lt;/script&gt;
+&lt;script src="https://master.raceup.co.th/data/staff.js"&gt;&lt;/script&gt;
+&lt;script src="https://master.raceup.co.th/data/project-assign.js"&gt;&lt;/script&gt;
+&lt;script src="https://master.raceup.co.th/data/sponsors.js"&gt;&lt;/script&gt;
+&lt;script src="https://master.raceup.co.th/data/suppliers.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-  const event = window.getEventByCode('KSMH26');
-  const total = window.getTotalTarget();
+  const event   = window.getEventByCode('KSMH26');
+  const staff   = window.getStaffByNickname('ก๋อย');
+  const team    = window.getProjectByEvent('KSMH26');
+  const title   = window.getTitleSponsor('KSMH26');
+  const medals  = window.getSuppliersByCategory('medal');
 &lt;/script&gt;</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>🔄 Sync Strategy</h2>
+    <p style="font-size:13px;color:#666">เลือกได้ 2 แบบ — ดูรายละเอียดใน <a href="SYNC_DESIGN.md">SYNC_DESIGN.md</a>:</p>
+    <ul style="font-size:13px;color:#444;margin-left:20px;margin-top:8px;line-height:1.8">
+      <li><strong>Push (Apps Script trigger):</strong> Sheet → onEdit → commit ผ่าน GitHub API → CF Pages auto-deploy</li>
+      <li><strong>Pull (GitHub Action cron):</strong> daily 6am pull จาก Sheet → commit เปลี่ยนแปลง</li>
+      <li><strong>Hybrid (แนะนำ):</strong> Push สำหรับ critical updates (events.js) + Pull สำหรับ static (suppliers.js)</li>
+    </ul>
   </div>
 
   <p style="text-align:center;color:#999;font-size:12px;margin-top:24px">

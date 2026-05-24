@@ -133,16 +133,17 @@ window.RACEUP_EVENTS = [
   },
   {
     code: 'CSMH26',
-    name: 'Scenic Half Marathon Chanthaburi 2026',
+    name: 'Prudentia Scenic 1/2 Marathon Chanthaburi 2026',
     shortName: 'CSMH26',
     expoDate: '2026-06-06',
     date: '2026-06-07',
     province: 'จันทบุรี',
-    venueShort: 'จันทบุรี',
-    venue: 'จันทบุรี',
+    venueShort: 'หาดคุ้งวิมาน',
+    venue: 'สี่แยกคุ้งวิมาน ต.สนามไชย อ.นายายอาม จ.จันทบุรี',
     distances: ['21K', '10K', '5K', '3K'],
-    startLat: 12.6113, startLng: 102.1037, zoom: 13,
-    color: '#06A77D',
+    // Start/Finish: สี่แยกคุ้งวิมาน (verified จาก runner guide CSMH26 v2)
+    startLat: 12.5775, startLng: 101.9355, zoom: 14,
+    color: '#7444F5',  // CSMH brand purple
     category: 'OE', series: 'Scenic Series',
     target: 4500,
     chatKey: 'CSMH26',

@@ -29,7 +29,7 @@ const EVENTS_FALLBACK = [
   { code:'PSMH26',  name:'Scenic Half Marathon Pranburi 2026',          expoDate:'2026-02-14', date:'2026-02-15', province:'ประจวบคีรีขันธ์', venueShort:'ปราณบุรี', distances:['21K','10K','5K','3K'], color:'#1D7BC4', category:'OE', series:'Scenic Series', target:3500 },
   { code:'SSP26',   name:'Supersports 10 Mile Run 2026',                expoDate:'2026-05-16', date:'2026-05-17', province:'กรุงเทพมหานคร', venueShort:'กรุงเทพ', distances:['10Mile','10K','5K'], color:'#39FF14', category:'EO', series:'EO Brand', target:7500 },
   { code:'PBR26',   name:'Pink Blue Run 2026',                          expoDate:null,         date:'2026-05-24', province:'กรุงเทพมหานคร', venueShort:'กรุงเทพ', distances:['10K','5K','3K'], color:'#FF69B4', category:'EO', series:'EO Brand', target:3000 },
-  { code:'CSMH26',  name:'Scenic Half Marathon Chanthaburi 2026',       expoDate:'2026-06-06', date:'2026-06-07', province:'จันทบุรี', venueShort:'จันทบุรี', distances:['21K','10K','5K','3K'], color:'#06A77D', category:'OE', series:'Scenic Series', target:4500 },
+  { code:'CSMH26',  name:'Prudentia Scenic 1/2 Marathon Chanthaburi 2026', expoDate:'2026-06-06', date:'2026-06-07', province:'จันทบุรี', venueShort:'หาดคุ้งวิมาน', distances:['21K','10K','5K','3K'], color:'#7444F5', category:'OE', series:'Scenic Series', target:4500 },
   { code:'KTJ26',   name:'ก้าวท้าใจ 10K Thailand Championship 2026',   expoDate:'2026-06-20', date:'2026-06-21', province:'กรุงเทพมหานคร', venueShort:'กรุงเทพ', distances:['10K','5K'], color:'#F4A300', category:'EO', series:'EO Brand', target:8000 },
   { code:'LR26',    name:'League Run 2026',                             expoDate:null,         date:'2026-06-28', province:'กรุงเทพมหานคร', venueShort:'กรุงเทพ', distances:['Team 10K','Team 5K'], color:'#FFC107', category:'OE', series:'Standalone OE', target:1000 },
   { code:'RSMH26',  name:'Scenic Half Marathon Rayong 2026',            expoDate:'2026-08-01', date:'2026-08-02', province:'ระยอง', venueShort:'ระยอง', distances:['21K','10K'], color:'#5B8DEF', category:'OE', series:'Scenic Series', target:4500 },
@@ -79,8 +79,13 @@ function doGet(e) {
       case 'events':      result = getEvents(); break;
       case 'categories':  result = getCategories(); break;
       case 'event':       result = getEvent(e.parameter.code); break;
+      case 'staff':       result = getStaff(); break;
+      case 'projects':    result = getProjects(); break;
+      case 'project':     result = getProject(e.parameter.code); break;
+      case 'sponsors':    result = getSponsors(e.parameter.event); break;
+      case 'suppliers':   result = getSuppliers(e.parameter.category); break;
       case 'js':          return serveEventsJs();
-      default: result = { error:'Unknown action. Try: ping, events, categories, event, js' };
+      default: result = { error:'Unknown action. Try: ping, events, categories, event, staff, projects, project, sponsors, suppliers, js' };
     }
   } catch (err) {
     result = { error: err.toString() };
@@ -138,8 +143,110 @@ function serveEventsJs() {
 }
 
 // ====================================================
+// NEW Endpoints (2026-05-22 expansion)
+// ====================================================
+
+/**
+ * Staff Directory — pulls from Hub Sheet (13t_phzkL3sbFV0vOSm_3nTqfkUjxhTxez0JqBWFykfI)
+ * tab "Employees" if accessible, else returns fallback
+ */
+const HUB_SHEET_ID = '13t_phzkL3sbFV0vOSm_3nTqfkUjxhTxez0JqBWFykfI';
+
+function getStaff() {
+  try {
+    const sheet = SpreadsheetApp.openById(HUB_SHEET_ID).getSheetByName('Employees');
+    if (!sheet) throw new Error('Employees tab not found');
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => String(h).trim().toLowerCase());
+    const out = [];
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const email = String(row[headers.indexOf('email')] || '').toLowerCase().split('\n')[0].trim();
+      if (!email) continue;
+      out.push({
+        empCode:    String(row[headers.indexOf('empcode')] || '').trim(),
+        nickname:   String(row[headers.indexOf('name')] || '').replace(/^พี่\s*/, '').split(/[\s\-]/)[0].trim(),
+        fullName:   String(row[headers.indexOf('fullname')] || '').trim(),
+        role:       String(row[headers.indexOf('role')] || '').trim(),
+        email:      email,
+        phone:      String(row[headers.indexOf('phone')] || '').trim(),
+        department: String(row[headers.indexOf('department')] || '').trim(),
+        level:      String(row[headers.indexOf('level')] || '').trim(),
+        status:     String(row[headers.indexOf('status')] || '').trim(),
+      });
+    }
+    return { ok: true, count: out.length, staff: out, source: 'sheet' };
+  } catch (err) {
+    return { ok: false, error: err.toString(), source: 'fallback-only', staff: [] };
+  }
+}
+
+function getProjects() {
+  try {
+    const sheet = SpreadsheetApp.openById(HUB_SHEET_ID).getSheetByName('Project Assign');
+    if (!sheet) throw new Error('Project Assign tab not found');
+    const data = sheet.getDataRange().getValues();
+    // ตรวจหา header row (ที่ column B = "Project")
+    let hr = -1;
+    for (let i = 0; i < data.length; i++) {
+      if (String(data[i][1] || '').trim().toLowerCase() === 'project') { hr = i; break; }
+    }
+    if (hr === -1) throw new Error('Header row not found');
+    const out = [];
+    for (let i = hr + 1; i < data.length; i++) {
+      const row = data[i];
+      const project = String(row[1] || '').trim();
+      if (!project) continue;
+      out.push({
+        project:   project,
+        point:     row[2],
+        eventDate: String(row[3] || '').trim(),
+        lead:      String(row[4] || '').trim(),
+        co1:       String(row[5] || '').trim(),
+        co2:       String(row[6] || '').trim(),
+        route:     String(row[7] || '').trim(),
+        ae:        String(row[8] || '').trim(),
+        pr:        String(row[9] || '').trim(),
+        graphic:   String(row[10] || '').trim(),
+        teamEvent: String(row[11] || '').trim(),
+        teamRace:  String(row[12] || '').trim(),
+      });
+    }
+    return { ok: true, count: out.length, projects: out, source: 'sheet' };
+  } catch (err) {
+    return { ok: false, error: err.toString(), source: 'fallback-only', projects: [] };
+  }
+}
+
+function getProject(code) {
+  if (!code) return { error: 'Missing code parameter' };
+  const all = getProjects();
+  if (!all.ok) return all;
+  const proj = all.projects.find(p => p.project.toUpperCase() === code.toUpperCase());
+  return proj ? { ok:true, project:proj } : { error:'Project not found: ' + code };
+}
+
+function getSponsors(event) {
+  // TODO: pull from "Sponsor Update" or "Master Sponsors" tab — stub returns empty
+  return { ok:true, count:0, sponsors:[], event:event || 'all',
+    note:'getSponsors stub — TODO: implement Sheet read' };
+}
+
+function getSuppliers(category) {
+  // TODO: pull from supplier database sheet — stub returns empty
+  return { ok:true, count:0, suppliers:[], category:category || 'all',
+    note:'getSuppliers stub — TODO: implement Sheet read' };
+}
+
+// ====================================================
 // Test
 // ====================================================
 function testEvents() {
   Logger.log(JSON.stringify(getEvents(), null, 2));
+}
+function testStaff() {
+  Logger.log(JSON.stringify(getStaff(), null, 2));
+}
+function testProjects() {
+  Logger.log(JSON.stringify(getProjects(), null, 2));
 }
