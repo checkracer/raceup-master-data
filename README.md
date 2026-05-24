@@ -3,7 +3,7 @@
 > **Single Source of Truth** สำหรับข้อมูล master ของ Race Up Work — แชร์ใช้ใน hub, no, ops, racepack subdomains
 >
 > **Domain:** `master.raceup.co.th` (Cloudflare Pages, public + CORS `*`)
-> **Repo:** `RACEUPWORK/raceup-master-data` (proposed, Public)
+> **Repo:** `checkracer/raceup-master-data` (proposed, Public)
 > **Local:** `C:\Claude Projects\Web Site Creation\raceup-master-data\`
 
 ## Executive Summary
@@ -64,7 +64,7 @@ raceup-master-data/
 ```bash
 cd "C:\Claude Projects\Web Site Creation\raceup-master-data"
 git init && git add . && git commit -m "Initial master data"
-git remote add origin https://github.com/RACEUPWORK/raceup-master-data.git
+git remote add origin https://github.com/checkracer/raceup-master-data.git
 git push -u origin main
 ```
 
