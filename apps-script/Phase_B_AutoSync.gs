@@ -37,6 +37,7 @@ const PB_SYNC_MAP = {
   'Quick Fact':     'syncEventsNow_',
   'Contact':        'syncStaffNow_',
   'Project Assign': 'syncProjectsNow_',
+  'Ops Assign':     'syncOpsAssignNow_',
 };
 
 // ====================================================
@@ -169,7 +170,10 @@ function syncAllNow() {
     const r1 = syncEventsNow_();
     const r2 = syncStaffNow_();
     const r3 = syncProjectsNow_();
-    return 'OK: events=' + r1 + ', staff=' + r2 + ', projects=' + r3;
+    const r4 = syncOpsAssignNow_();
+    const msg = 'OK: events=' + r1 + ', staff=' + r2 + ', projects=' + r3 + ', opsAssign=' + r4;
+    Logger.log(msg);
+    return msg;
   } catch (err) {
     logSync_('ERROR', 'all', err.toString());
     return 'ERROR: ' + err.toString();
@@ -239,6 +243,51 @@ function syncProjectsNow_() {
   if (dataRows.length === 0) throw new Error('No data rows in Working > Project Assign');
 
   // Direct write — Working is canonical for projects
+  tgt.clear();
+  const allRows = [headers].concat(dataRows);
+  tgt.getRange(1, 1, allRows.length, headers.length).setValues(allRows);
+  tgt.getRange(1, 1, 1, headers.length)
+    .setFontWeight('bold').setBackground('#1F4E78').setFontColor('#FFFFFF');
+  tgt.setFrozenRows(1);
+
+  return dataRows.length;
+}
+
+// Generic sync — Working tab → Hub Link tab (same name, clean copy)
+// Used for: Ops Assign (and any future tab that's just a 1:1 mirror)
+function syncOpsAssignNow_() {
+  return syncGenericMirror_('Ops Assign', 'Ops Assign');
+}
+
+function syncGenericMirror_(workingTabName, hubTabName) {
+  const wsBook = SpreadsheetApp.openById(PB_WORKING_ID);
+  const hubBook = SpreadsheetApp.openById(PB_HUB_ID);
+
+  const src = wsBook.getSheetByName(workingTabName);
+  if (!src) throw new Error('Working > "' + workingTabName + '" not found');
+
+  const srcData = src.getDataRange().getValues();
+  if (srcData.length === 0) throw new Error('Working > "' + workingTabName + '" is empty');
+
+  // Find header row — first row with 2+ non-empty cells (skip title rows)
+  let headerIdx = -1;
+  for (let i = 0; i < Math.min(srcData.length, 5); i++) {
+    const nonBlank = srcData[i].filter(c => c !== '' && c !== null && c !== undefined).length;
+    if (nonBlank >= 2) { headerIdx = i; break; }
+  }
+  if (headerIdx < 0) throw new Error('Could not find header row in "' + workingTabName + '"');
+
+  const headers = srcData[headerIdx];
+  // Data: rows after header that have at least 1 non-empty cell
+  const dataRows = srcData.slice(headerIdx + 1).filter(r => r.some(c => c !== '' && c !== null && c !== undefined));
+
+  if (dataRows.length === 0) throw new Error('No data rows in "' + workingTabName + '"');
+
+  // Create or get target tab
+  let tgt = hubBook.getSheetByName(hubTabName);
+  if (!tgt) tgt = hubBook.insertSheet(hubTabName);
+
+  // Clear + write
   tgt.clear();
   const allRows = [headers].concat(dataRows);
   tgt.getRange(1, 1, allRows.length, headers.length).setValues(allRows);
@@ -328,7 +377,21 @@ function dryRunSyncAll() {
     const projCount = projData.slice(h + 1).filter(r => r[h >= 0 ? projData[h].findIndex(c => String(c).toLowerCase().trim() === 'project') : 1]).length;
     out.push('Projects: ' + projCount + ' rows (target: Project Assignment)');
 
-    out.push('\nWould write to 3 Hub Link tabs. No backup created (use weeklyBackup for that).');
+    // Ops Assign (generic mirror)
+    const opsSrc = wsBook.getSheetByName('Ops Assign');
+    if (opsSrc) {
+      const opsData = opsSrc.getDataRange().getValues();
+      let oh = -1;
+      for (let i = 0; i < Math.min(opsData.length, 5); i++) {
+        if (opsData[i].filter(c => c !== '' && c !== null).length >= 2) { oh = i; break; }
+      }
+      const opsCount = oh >= 0 ? opsData.slice(oh + 1).filter(r => r.some(c => c !== '' && c !== null)).length : 0;
+      out.push('Ops Assign: ' + opsCount + ' rows (target: Ops Assign)');
+    } else {
+      out.push('Ops Assign: TAB NOT FOUND in Working — sync will fail');
+    }
+
+    out.push('\nWould write to 4 Hub Link tabs. No backup created (use weeklyBackup for that).');
     out.push('To sync now: run syncAllNow()');
   } catch (err) {
     out.push('ERROR: ' + err.toString());
