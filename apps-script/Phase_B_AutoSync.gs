@@ -236,8 +236,13 @@ function syncProjectsNow_() {
   }
   if (headerIdx < 0) throw new Error('Could not find header row in Working > Project Assign');
 
-  const headers = srcData[headerIdx];
-  const projectColIdx = headers.findIndex(c => String(c).toLowerCase().trim() === 'project');
+  // Rename "Project" column → "Event Code" so Hub Apps Script can find it
+  // (Hub Apps Script getAllUserData uses r['Event Code'] to lookup project codes)
+  const headers = srcData[headerIdx].map(h => {
+    const s = String(h || '').trim();
+    return s.toLowerCase() === 'project' ? 'Event Code' : s;
+  });
+  const projectColIdx = headers.findIndex(c => String(c).toLowerCase().trim() === 'event code');
   const dataRows = srcData.slice(headerIdx + 1).filter(r => r[projectColIdx] && String(r[projectColIdx]).trim());
 
   if (dataRows.length === 0) throw new Error('No data rows in Working > Project Assign');

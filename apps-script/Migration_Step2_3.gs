@@ -364,8 +364,13 @@ function executeBootstrapProjectAssignment() {
   }
   if (headerIdx < 0) return 'ABORT: Could not find header row';
 
-  const headers = srcData[headerIdx];
-  const projectColIdx = headers.findIndex(c => String(c).toLowerCase().trim() === 'project');
+  // Rename "Project" column → "Event Code" so Hub Apps Script can find it
+  // (Hub Apps Script getAllUserData uses r['Event Code'] to lookup project codes)
+  const headers = srcData[headerIdx].map(h => {
+    const s = String(h || '').trim();
+    return s.toLowerCase() === 'project' ? 'Event Code' : s;
+  });
+  const projectColIdx = headers.findIndex(c => String(c).toLowerCase().trim() === 'event code');
   const dataRows = srcData.slice(headerIdx + 1).filter(r => r[projectColIdx] && String(r[projectColIdx]).trim());
 
   if (dataRows.length === 0) return 'ABORT: No data rows found';
