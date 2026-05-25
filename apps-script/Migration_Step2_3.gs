@@ -432,15 +432,15 @@ const STAFF_CANONICAL_HEADERS = [
   'Email', 'Phone', 'EmergencyContact', 'Alias', 'EmpCode', 'StartDate', 'Status'
 ];
 
-// Email cleanup rules (per Korn's review 2026-05-25)
+// Email cleanup rules (per Korn's review 2026-05-25, updated 2026-05-25 14:00)
 // MAP: Working has wrong/old email → use the correct one (preserves Phone from Working row)
 const STAFF_EMAIL_MAP = {
   'nacha@raceup.co.th':         'natcha@raceup.co.th',   // typo: missing 't'
   'iziing666@gmail.com':        'ize@raceup.co.th',      // old personal email
+  'jiratchayada.pp@gmail.com':  'graphic@raceup.co.th',  // พรีม — moved to work email (was wrongly skipped earlier)
 };
 // SKIP: people no longer with company — drop these Working rows entirely
 const STAFF_EMAIL_SKIP = [
-  'jiratchayada.pp@gmail.com',
   'thanakorn@raceup.co.th',
 ];
 
