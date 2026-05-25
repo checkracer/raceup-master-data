@@ -371,9 +371,10 @@ window.RACEUP_EVENTS = [
     sheetId: '', raceResultId: '', mapEmbedUrl: ''
   },
   {
-    code: 'NSMH26',
-    name: 'Scenic Half Marathon Nakhon Phanom 2026',
-    shortName: 'NSMH26',
+    code: 'NSM26',
+    name: 'Scenic Marathon Nakhon Phanom 2026',
+    shortName: 'NSM26',
+    aliases: ['NSMH26'],  // legacy: was named NSMH26 (Half) before rebrand to NSM (full marathon series)
     expoDate: '2026-12-12',
     date: '2026-12-13',
     province: 'นครพนม',
@@ -384,7 +385,7 @@ window.RACEUP_EVENTS = [
     color: '#8B5A3C',
     category: 'OE', series: 'Scenic Series',
     target: 4000,
-    chatKey: 'NSMH26',
+    chatKey: 'NSM26',
     sheetId: '', raceResultId: '', mapEmbedUrl: ''
   },
   {
