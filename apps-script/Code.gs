@@ -36,10 +36,11 @@ const HUB_LINK_SHEET_ID = '1Um6I4VG9dokB5UlSb1ncLWdomeTd79WamewJ9OjPd8Q';
 const WORKING_SHEET_ID  = '13t_phzkL3sbFV0vOSm_3nTqfkUjxhTxez0JqBWFykfI';
 
 // Tab name fallback order — try Live_* (auto-synced) first, then direct tabs
+// Hub Link tabs take priority over Working (master reads Hub Link as SoT)
 const TAB_FALLBACKS = {
-  events:   ['Live_QuickFact', 'Live_ProjectInfo', 'Quick Fact', 'Master Event List'],
-  staff:    ['Live_Contact', 'Contact', 'Employee Registry', 'Employees'],
-  projects: ['Live_ProjectAssign', 'Project Assign', 'Project Assignment'],
+  events:   ['Live_QuickFact', 'Live_ProjectInfo', 'Project Info', 'Quick Fact', 'Master Event List'],
+  staff:    ['Live_Contact', 'Staff Directory', 'Contact', 'Employee Registry', 'Employees'],
+  projects: ['Live_ProjectAssign', 'Project Assignment', 'Project Assign'],
   sponsors: ['Live_SponsorUpdate', 'Sponsor Update', 'Sponsors', 'Event Sponsor'],
 };
 
