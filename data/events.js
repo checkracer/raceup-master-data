@@ -403,6 +403,97 @@ window.RACEUP_EVENTS = [
     target: 5000,
     chatKey: 'Gatorade26',
     sheetId: '', raceResultId: '', mapEmbedUrl: ''
+  },
+  // ============================================================
+  //  Additional events จาก Working Sheet Quick Fact (เพิ่ม 2026-05-25)
+  // ============================================================
+  {
+    code: 'CTP-CM',
+    name: 'Counterpain Run 2026 Chiang Mai',
+    shortName: 'CTP-CM',
+    expoDate: null,
+    date: '2026-10-31',
+    province: 'เชียงใหม่',
+    venueShort: 'เชียงใหม่',
+    venue: 'เชียงใหม่',
+    distances: ['10K', '5K'],
+    startLat: 18.7883, startLng: 98.9853, zoom: 13,
+    color: '#00A6A6',
+    category: 'EO', series: 'Counterpain Series',
+    target: 500,
+    chatKey: 'CTP-CM',
+    sheetId: '', raceResultId: '', mapEmbedUrl: ''
+  },
+  {
+    code: 'GATRUNCLUB26',
+    name: 'Gatorade Run Club Event 2026',
+    shortName: 'GAT-Club',
+    expoDate: null,
+    date: '2026-06-13',
+    province: 'กรุงเทพมหานคร',
+    venueShort: 'กรุงเทพ',
+    venue: 'TBC — Bangkok (Run Club series 7 ครั้ง)',
+    distances: ['3K', '5K'],
+    startLat: 13.7563, startLng: 100.5018, zoom: 12,
+    color: '#FF6F00',
+    category: 'EO', series: 'EO Brand',
+    target: 150,
+    chatKey: 'GATRUNCLUB26',
+    sheetId: '', raceResultId: '', mapEmbedUrl: ''
+  },
+  // ============================================================
+  //  2027 events (preview — เริ่มขายบัตร/วางแผนล่วงหน้า)
+  // ============================================================
+  {
+    code: 'KYM27',
+    name: 'Khao Yai Marathon 2027',
+    shortName: 'KYM27',
+    expoDate: '2027-01-09',
+    date: '2027-01-10',
+    province: 'นครราชสีมา',
+    venueShort: 'เขาใหญ่',
+    venue: 'อุทยานแห่งชาติเขาใหญ่',
+    distances: ['42K', '21K', '10K', '5K', '2K'],
+    startLat: 14.4419, startLng: 101.3733, zoom: 13,
+    color: '#2E8B57',
+    category: 'OE', series: 'Standalone OE',
+    target: 9000,
+    chatKey: 'KYM27',
+    sheetId: '', raceResultId: '', mapEmbedUrl: ''
+  },
+  {
+    code: 'PO27',
+    name: 'Pocari Sweat Run 2027',
+    shortName: 'PO27',
+    expoDate: '2027-01-16',
+    date: '2027-01-17',
+    province: 'กรุงเทพมหานคร',
+    venueShort: 'กรุงเทพ',
+    venue: 'TBC — Bangkok',
+    distances: ['10K', '5K', '3K'],
+    startLat: 13.7563, startLng: 100.5018, zoom: 12,
+    color: '#0072CE',
+    category: 'EO', series: 'EO Brand',
+    target: 6500,
+    chatKey: 'PO27',
+    sheetId: '', raceResultId: '', mapEmbedUrl: ''
+  },
+  {
+    code: 'KDMH27',
+    name: 'Khun Dan Half Marathon 2027',
+    shortName: 'KDMH27',
+    expoDate: '2027-01-30',
+    date: '2027-01-31',
+    province: 'นครนายก',
+    venueShort: 'เขื่อนขุนด่านปราการชล',
+    venue: 'เขื่อนขุนด่านปราการชล',
+    distances: ['21K', '10K', '5K', '3K'],
+    startLat: 14.3146, startLng: 101.3322, zoom: 13,
+    color: '#1B998B',
+    category: 'OE', series: 'Standalone OE',
+    target: 4000,
+    chatKey: 'KDMH27',
+    sheetId: '', raceResultId: '', mapEmbedUrl: ''
   }
 ];
 
