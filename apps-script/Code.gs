@@ -111,7 +111,8 @@ function doGet(e) {
       case 'suppliers':   result = getSuppliers(e.parameter.category); break;
       case 'js':          return serveEventsJs();
       case 'health':      result = healthCheck(); break;
-      default: result = { error:'Unknown action. Try: ping, events, event, categories, staff, projects, project, sponsors, suppliers, js, health' };
+      case 'schemaaudit': result = schemaAudit(); break;
+      default: result = { error:'Unknown action. Try: ping, events, event, categories, staff, projects, project, sponsors, suppliers, js, health, schemaAudit' };
     }
   } catch (err) {
     result = { error: err.toString(), action: action };
@@ -492,10 +493,89 @@ function safeCall_(fn) {
 }
 
 // ====================================================
+// Schema Audit — read-only inventory of all tabs in both sheets
+// Returns per-tab: headers, rowCount, colCount, sample rows
+// Use this to design canonical schema for Hub Link (SoT)
+// ====================================================
+function schemaAudit() {
+  const report = {
+    ok: true,
+    time: new Date().toISOString(),
+    version: 'audit-1.0',
+    summary: { hubLink: { tabCount: 0, totalRows: 0 }, working: { tabCount: 0, totalRows: 0 } },
+    hubLink: { id: HUB_LINK_SHEET_ID, name: '', tabs: {} },
+    working: { id: WORKING_SHEET_ID,  name: '', tabs: {} }
+  };
+
+  // ---- Hub Link Sheet ----
+  try {
+    const hub = SpreadsheetApp.openById(HUB_LINK_SHEET_ID);
+    report.hubLink.name = hub.getName();
+    hub.getSheets().forEach(sh => {
+      report.hubLink.tabs[sh.getName()] = inventoryTab_(sh);
+      report.summary.hubLink.tabCount++;
+      report.summary.hubLink.totalRows += sh.getLastRow();
+    });
+  } catch (e) {
+    report.hubLink.error = e.toString();
+    report.ok = false;
+  }
+
+  // ---- Working Sheet ----
+  try {
+    const ws = SpreadsheetApp.openById(WORKING_SHEET_ID);
+    report.working.name = ws.getName();
+    ws.getSheets().forEach(sh => {
+      report.working.tabs[sh.getName()] = inventoryTab_(sh);
+      report.summary.working.tabCount++;
+      report.summary.working.totalRows += sh.getLastRow();
+    });
+  } catch (e) {
+    report.working.error = e.toString();
+    report.ok = false;
+  }
+
+  return report;
+}
+
+function inventoryTab_(sheet) {
+  const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
+  if (lastRow === 0 || lastCol === 0) {
+    return { headers: [], rowCount: 0, colCount: 0, sample: [], hidden: sheet.isSheetHidden() };
+  }
+  // Row 1 = headers (assumed)
+  const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0]
+    .map(h => (h === null || h === undefined) ? '' : String(h).trim());
+
+  // Sample: rows 2-4 (up to 3 sample rows)
+  let sample = [];
+  if (lastRow >= 2) {
+    const sampleRowCount = Math.min(3, lastRow - 1);
+    const raw = sheet.getRange(2, 1, sampleRowCount, lastCol).getValues();
+    sample = raw.map(row => row.map(v => {
+      if (v === null || v === undefined) return '';
+      if (v instanceof Date) return Utilities.formatDate(v, 'GMT+7', 'yyyy-MM-dd');
+      const s = String(v);
+      return s.length > 80 ? s.slice(0, 80) + '…' : s;
+    }));
+  }
+
+  return {
+    headers: headers,
+    rowCount: lastRow - 1,  // exclude header
+    colCount: lastCol,
+    sample: sample,
+    hidden: sheet.isSheetHidden()
+  };
+}
+
+// ====================================================
 // Test functions (run from Apps Script editor)
 // ====================================================
-function testEvents()   { Logger.log(JSON.stringify(getEvents(),   null, 2)); }
-function testStaff()    { Logger.log(JSON.stringify(getStaff(),    null, 2)); }
-function testProjects() { Logger.log(JSON.stringify(getProjects(), null, 2)); }
-function testSponsors() { Logger.log(JSON.stringify(getSponsors(), null, 2)); }
-function testHealth()   { Logger.log(JSON.stringify(healthCheck(), null, 2)); }
+function testEvents()      { Logger.log(JSON.stringify(getEvents(),    null, 2)); }
+function testStaff()       { Logger.log(JSON.stringify(getStaff(),     null, 2)); }
+function testProjects()    { Logger.log(JSON.stringify(getProjects(),  null, 2)); }
+function testSponsors()    { Logger.log(JSON.stringify(getSponsors(),  null, 2)); }
+function testHealth()      { Logger.log(JSON.stringify(healthCheck(),  null, 2)); }
+function testSchemaAudit() { Logger.log(JSON.stringify(schemaAudit(),  null, 2)); }
