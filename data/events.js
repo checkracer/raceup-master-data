@@ -141,8 +141,8 @@ window.RACEUP_EVENTS = [
     venueShort: 'หาดคุ้งวิมาน',
     venue: 'สี่แยกคุ้งวิมาน ต.สนามไชย อ.นายายอาม จ.จันทบุรี',
     distances: ['21K', '10K', '5K', '3K'],
-    // Start/Finish: สี่แยกคุ้งวิมาน (verified จาก runner guide CSMH26 v2)
-    startLat: 12.5775, startLng: 101.9355, zoom: 14,
+    // Start/Finish: สี่แยกคุ้งวิมาน — verified จาก KML Google Earth (route survey จริง)
+    startLat: 12.607011, startLng: 101.875858, zoom: 13,
     color: '#7444F5',  // CSMH brand purple
     category: 'OE', series: 'Scenic Series',
     target: 4500,
