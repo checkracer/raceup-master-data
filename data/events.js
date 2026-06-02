@@ -133,7 +133,7 @@ window.RACEUP_EVENTS = [
   },
   {
     code: 'CSMH26',
-    name: 'Prudentia Scenic 1/2 Marathon Chanthaburi 2026',
+    name: 'Scenic 1/2 Marathon Chanthaburi 2026',
     shortName: 'CSMH26',
     expoDate: '2026-06-06',
     date: '2026-06-07',
