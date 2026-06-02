@@ -129,7 +129,7 @@ window.RACEUP_EVENTS = [
     category: 'EO', series: 'EO Brand',
     target: 3000,
     chatKey: 'PBR26',
-    sheetId: '', raceResultId: '', mapEmbedUrl: ''
+    sheetId: '', raceResultId: '392265', mapEmbedUrl: ''
   },
   {
     code: 'CSMH26',
